@@ -1,0 +1,23 @@
+{
+  "version": "0.0.0",
+  "summary": "A documentation generator for Elm.",
+  "repository": "https://github.com/panosoft/elm-doc.git",
+  "license": "Unlicense",
+  "source-directories": [
+    "src",
+    "test"
+  ],
+  "exposed-modules": [],
+  "dependencies": {
+    "elm-community/json-extra": "2.3.0 <= v < 3.0.0",
+    "elm-community/result-extra": "2.2.0 <= v < 3.0.0",
+    "elm-lang/core": "5.1.1 <= v < 6.0.0",
+    "elm-node/core": "2.2.0 <= v < 3.0.0"
+  },
+  "dependency-sources": {
+    "elm-community/json-extra": "https://github.com/elm-community/json-extra.git",
+    "elm-community/result-extra": "https://github.com/elm-community/result-extra.git",
+    "elm-node/core": "https://github.com/elm-node/core.git"
+  },
+  "elm-version": "0.18.0 <= v < 0.19.0"
+}

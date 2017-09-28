@@ -1,0 +1,6 @@
+elm-stuff
+node_modules
+test/docs
+test/elm.js
+test/package/elm-stuff
+test/package/documentation.json

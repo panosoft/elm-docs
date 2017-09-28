@@ -1,0 +1,17 @@
+{
+  "name": "@panosoft/elm-doc",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "(cd test/package/; elm make --docs documentation.json); elm make test/Main.elm --output test/elm.js && node test/index.js"
+  },
+  "author": "",
+  "license": "Unlicense",
+  "dependencies": {
+    "@elm-node/core": "git+https://github.com/elm-node/core.git#semver:^2.2.0"
+  }
+}
