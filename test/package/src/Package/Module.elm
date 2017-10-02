@@ -2,7 +2,15 @@ module Package.Module exposing (..)
 
 {-| Module comments.
 
-@docs function, value, Record, Msg
+
+# Types
+
+@docs Record, Msg
+
+
+# Api
+
+@docs value , function
 
 -}
 

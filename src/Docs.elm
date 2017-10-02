@@ -5,9 +5,12 @@ module Docs
 
 import Json.Decode as Decode
 import Json.Decode.Extra as Decode
+import List.Extra as List
+import Maybe.Extra as Maybe
 import Node.Encoding as Encoding
 import Node.Error as Error
 import Node.FileSystem as FileSystem
+import Regex
 import Result.Extra as Result
 import Task exposing (Task)
 
@@ -48,29 +51,44 @@ moduleToMarkdown : Module -> ( String, String )
 moduleToMarkdown module_ =
     ( module_.name
     , ("# " ++ module_.name ++ "\n\n")
-        ++ ((String.trim module_.comment) ++ "\n\n")
-        ++ (List.map aliasToMarkdown module_.aliases
-                |> String.join "\n\n---\n\n"
-           )
-        ++ "\n\n---\n\n"
-        ++ (List.map unionToMarkdown module_.unions
-                |> String.join "\n\n---\n\n"
-           )
-        ++ "\n\n---\n\n"
-        ++ (List.map valueToMarkdown module_.values
-                |> String.join "\n\n---\n\n"
-           )
+        ++ (processComments module_)
         ++ "\n\n"
     )
 
 
+processComments : Module -> String
+processComments { comment, aliases, unions, values } =
+    let
+        regex =
+            Regex.regex "\\@docs (.*)?,?"
+    in
+        Regex.replace
+            Regex.All
+            regex
+            (.match
+                >> Regex.replace Regex.All (Regex.regex "\\@docs\\s*") (always "")
+                >> Regex.split Regex.All (Regex.regex "\\s*,\\s*")
+                >> (\names ->
+                        -- take each name
+                        -- find which type name is
+                        List.map
+                            (\name ->
+                                Maybe.values
+                                    [ List.find (.name >> (==) name) aliases |> Maybe.map aliasToMarkdown
+                                    , List.find (.name >> (==) name) unions |> Maybe.map unionToMarkdown
+                                    , List.find (.name >> (==) name) values |> Maybe.map valueToMarkdown
+                                    ]
+                                    |> List.head
+                                    |> Maybe.withDefault (name ++ " : Not Found!!!")
+                            )
+                            names
+                            |> String.join "\n\n---\n\n"
+                   )
+            )
+            (String.trim comment)
 
--- processComments :
--- find all @docs lines
--- get all names following @docs on each line
--- generate markdown for each name
--- replace `@docs *\n` with the markdown generated
--- docsToMarkdown
+
+
 -- ALIAS
 
 
@@ -100,7 +118,7 @@ aliasSignature alias_ =
 
 aliasToMarkdown : Alias -> String
 aliasToMarkdown alias_ =
-    aliasSignature alias_ ++ "\n\n" ++ alias_.comment
+    aliasSignature alias_ ++ "\n\n" ++ (String.trim alias_.comment)
 
 
 
