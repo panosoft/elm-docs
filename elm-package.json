@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
   "summary": "A markdown documentation generator for Elm.",
-  "repository": "https://github.com/panosoft/elm-doc.git",
+  "repository": "https://github.com/panosoft/elm-docs.git",
   "license": "Unlicense",
   "source-directories": [
     "src",
