@@ -1,3 +1,3 @@
-# TODO
+# Docs
 
-- [ ] support @docs tag in module comments
+> A markdown documentation generator for Elm.
