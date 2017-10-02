@@ -1,4 +1,4 @@
-module Package.Module exposing (..)
+module Package.ModuleA exposing (..)
 
 {-| Module comments.
 

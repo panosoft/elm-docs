@@ -3,6 +3,12 @@ module Docs
         ( generate
         )
 
+{-| Render code documentation in Markdown.
+
+@docs generate
+
+-}
+
 import Json.Decode as Decode
 import Json.Decode.Extra as Decode
 import List.Extra as List
@@ -15,6 +21,8 @@ import Result.Extra as Result
 import Task exposing (Task)
 
 
+{-| Render code documentation in Markdown.
+-}
 generate : String -> String -> Task String ()
 generate source destination =
     (FileSystem.readFileAsString source Encoding.Utf8 |> Task.mapError Error.message)
