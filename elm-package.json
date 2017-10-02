@@ -1,5 +1,5 @@
 {
-  "version": "0.1.0",
+  "version": "1.0.0",
   "summary": "A documentation generator for Elm.",
   "repository": "https://github.com/panosoft/elm-doc.git",
   "license": "Unlicense",
