@@ -2,6 +2,9 @@ module Package.ModuleA exposing (..)
 
 {-| Module comments.
 
+  - [Types](#types)
+  - [Api](#api)
+
 
 # Types
 
@@ -38,6 +41,21 @@ value =
 
 
 {-| function comments
+
+    x : String
+    x =
+        "abc"
+
+    y : String
+
+```js
+var x = 1;
+```
+
+    z : String
+    z =
+        "stuff"
+
 -}
 function : a -> (a -> b) -> b
 function a map =

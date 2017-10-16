@@ -4,11 +4,11 @@
   "repository": "https://github.com/user/project.git",
   "license": "Unlicense",
   "source-directories": [
-        "src"
-    ],
+    "src"
+  ],
   "exposed-modules": [
-      "Package.ModuleA",
-      "Package.ModuleB"
+    "Package.ModuleA",
+    "Package.ModuleB"
   ],
   "dependencies": {
     "elm-lang/core": "5.1.1 <= v < 6.0.0",

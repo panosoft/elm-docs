@@ -1,6 +1,6 @@
 module Main exposing (..)
 
-import Docs
+import Docs.Generator as Docs
 import Task exposing (Task)
 
 
@@ -20,7 +20,7 @@ type Msg
 init : ( {}, Cmd Msg )
 init =
     ( {}
-    , Docs.generate "./test/package/documentation.json" "./test/docs"
+    , Docs.generate "/" "./test/package/documentation.json" "./test/docs"
         |> Task.attempt Done
     )
 

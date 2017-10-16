@@ -7,21 +7,18 @@
     "src",
     "test"
   ],
-  "exposed-modules": [],
+  "exposed-modules": [
+    "Docs.Generator"
+  ],
   "dependencies": {
     "elm-community/json-extra": "2.3.0 <= v < 3.0.0",
     "elm-community/list-extra": "6.1.0 <= v < 7.0.0",
     "elm-community/maybe-extra": "4.0.0 <= v < 5.0.0",
     "elm-community/result-extra": "2.2.0 <= v < 3.0.0",
     "elm-lang/core": "5.1.1 <= v < 6.0.0",
-    "elm-node/core": "2.2.0 <= v < 3.0.0"
-  },
-  "dependency-sources": {
-    "elm-community/json-extra": "https://github.com/elm-community/json-extra.git",
-    "elm-community/list-extra": "https://github.com/elm-community/list-extra.git",
-    "elm-community/maybe-extra": "https://github.com/elm-community/maybe-extra.git",
-    "elm-community/result-extra": "https://github.com/elm-community/result-extra.git",
-    "elm-node/core": "https://github.com/elm-node/core.git"
+    "elm-node/core": "2.2.0 <= v < 3.0.0",
+    "panosoft/elm-string-utils": "2.1.1 <= v < 3.0.0",
+    "panosoft/elm-utils": "2.7.0 <= v < 3.0.0"
   },
   "elm-version": "0.18.0 <= v < 0.19.0"
 }

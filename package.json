@@ -7,11 +7,15 @@
     "test": "test"
   },
   "scripts": {
-    "test": "(cd test/package/; elm make --docs documentation.json); elm make test/Main.elm --output test/elm.js && node test/index.js"
+    "make-docs": "cd test/package/; grove install; elm make --docs documentation.json",
+    "compile-test": "elm make test/Main.elm --output test/elm.js",
+    "prep-test": "npm run -s make-docs && npm run -s compile-test",
+    "run-test": "node test/index.js",
+    "test": "npm run -s prep-test && npm run -s run-test"
   },
   "author": "",
   "license": "Unlicense",
   "dependencies": {
-    "@elm-node/core": "git+https://github.com/elm-node/core.git#semver:^2.2.0"
+    "@elm-node/core": "git+https://github.com/elm-node/core.git#semver:^2.2.1"
   }
 }
