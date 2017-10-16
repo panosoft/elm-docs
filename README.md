@@ -87,4 +87,4 @@ If, for some reason, you'd like to embed code from a different language, e.g. Ja
 
 # Api
 
-- [Generator](src/Docs/Generator.elm)
+- [Generator](elm-docs/Docs.Generator.md)
