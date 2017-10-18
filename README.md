@@ -2,17 +2,20 @@
 
 > A markdown documentation generator for Elm.
 
-## Install
 
-You'll need [Grove](https://github.com/panosoft/elm-grove.git).
+## Install
 
 ```
 grove install panosoft/elm-docs
 ```
 
+_Note: [Grove](https://github.com/panosoft/elm-grove) is an advanced package manager for Elm and can be found [here](https://github.com/panosoft/elm-grove)._
+
+
 # Usage
 
-Simply document your modules with markdown comments and this library will fill in the documentation from function comments in place of `@docs`  statements.
+Document your code using the [Elm language documentation format](http://package.elm-lang.org/help/documentation-format) and this library will render that documentation as Markdown.
+
 
 ## Example
 
@@ -56,6 +59,7 @@ For a more advanced example, take a look at the repository [panosoft/elm-utils](
 
 You can see what this produces at [Utils.Ops.md](https://github.com/panosoft/elm-utils/blob/master/elm-docs/Utils.Ops.md).
 
+
 ### Table of Contents
 
 The documentation has been broken up into categories. A table of contents has been created to allow the user to jump to the appropriate section:
@@ -70,6 +74,7 @@ The documentation has been broken up into categories. A table of contents has be
 Each `@docs` section will get the documentation for the functions in its list. The function documentation will be made up from the comments of those functions which is also in markdown.
 
 Unlike the manual Table of Contents above, each `@docs` section will automatically be preceded with a Table of Contents for the functions in that `@docs` statement.
+
 
 # Elm Format issues
 
