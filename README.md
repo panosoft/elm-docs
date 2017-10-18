@@ -12,7 +12,7 @@ grove install panosoft/elm-docs
 _Note: [Grove](https://github.com/panosoft/elm-grove) is an advanced package manager for Elm and can be found [here](https://github.com/panosoft/elm-grove)._
 
 
-# Usage
+## Usage
 
 Document your code using the [Elm language documentation format](http://package.elm-lang.org/help/documentation-format) and this library will render that documentation as Markdown.
 
@@ -76,7 +76,7 @@ Each `@docs` section will get the documentation for the functions in its list. T
 Unlike the manual Table of Contents above, each `@docs` section will automatically be preceded with a Table of Contents for the functions in that `@docs` statement.
 
 
-# Elm Format issues
+## Elm Format issues
 
 If you're used to using the back-ticks to begin a block of code in markdown, e.g.:
 
@@ -90,6 +90,6 @@ But it will only do this for elm code blocks. This is not a problem since this l
 
 If, for some reason, you'd like to embed code from a different language, e.g. Javascript, then you MUST use back-ticks.
 
-# Api
+## Api
 
 - [Generator](elm-docs/Docs.Generator.md)
