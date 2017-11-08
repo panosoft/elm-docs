@@ -1,11 +1,17 @@
 module Docs.Generator
     exposing
-        ( generate
+        ( Module
+        , Alias
+        , Union
+        , Value
+        , Case
+        , moduleDecoder
+        , generate
         )
 
 {-| Render code documentation in Markdown.
 
-@docs generate
+@docs Module, Alias, Union, Value, Case, moduleDecoder, generate
 
 -}
 
@@ -245,6 +251,8 @@ processComments { comment, aliases, unions, values } =
 -- ALIAS
 
 
+{-| Exposed type aliases
+-}
 type alias Alias =
     { name : String
     , comment : String
@@ -282,6 +290,8 @@ aliasToMarkdown alias_ =
 -- UNION
 
 
+{-| Case of a union type
+-}
 type alias Case =
     ( String, List String )
 
@@ -293,6 +303,8 @@ caseDecoder =
         (Decode.index 1 <| Decode.list Decode.string)
 
 
+{-| Exposed union types
+-}
 type alias Union =
     { name : String
     , comment : String
@@ -341,6 +353,8 @@ unionToMarkdown union =
 -- VALUE
 
 
+{-| Exposed values
+-}
 type alias Value =
     { name : String
     , comment : String
@@ -373,6 +387,8 @@ valueToMarkdown value =
         ++ (String.trim value.comment)
 
 
+{-| Module doc info
+-}
 type alias Module =
     { name : String
     , comment : String
@@ -382,6 +398,11 @@ type alias Module =
     }
 
 
+{-| Decoder for a single module
+
+Use with Json.Decode.list since Elm's output for documentation JSON is a list of Modules.
+
+-}
 moduleDecoder : Decode.Decoder Module
 moduleDecoder =
     Decode.succeed Module
