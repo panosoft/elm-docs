@@ -1,0 +1,52 @@
+[
+  {
+    "name": "Docs.Generator",
+    "comment": " Render code documentation in Markdown.\n\n@docs Module, Alias, Union, Value, Case, moduleDecoder, generate\n\n",
+    "aliases": [
+      {
+        "name": "Alias",
+        "comment": " Exposed type aliases\n",
+        "args": [],
+        "type": "{ name : String , comment : String , args : List String , type_ : String }"
+      },
+      {
+        "name": "Case",
+        "comment": " Case of a union type\n",
+        "args": [],
+        "type": "( String, List String )"
+      },
+      {
+        "name": "Module",
+        "comment": " Module doc info\n",
+        "args": [],
+        "type": "{ name : String , comment : String , aliases : List Docs.Generator.Alias , unions : List Docs.Generator.Union , values : List Docs.Generator.Value }"
+      },
+      {
+        "name": "Union",
+        "comment": " Exposed union types\n",
+        "args": [],
+        "type": "{ name : String , comment : String , args : List String , tags : List Docs.Generator.Case }"
+      },
+      {
+        "name": "Value",
+        "comment": " Exposed values\n",
+        "args": [],
+        "type": "{ name : String, comment : String, type_ : String }"
+      }
+    ],
+    "types": [],
+    "values": [
+      {
+        "name": "generate",
+        "comment": " Render code documentation files in Markdown.\n\n    sourceDirectory : String\n    sourceDirectory =\n        \".\"\n\n    destinationDirectory : String\n    destinationDirectory =\n        \"elm-docs\"\n\n    generate \"/\" sourceDirectory destinationDirectory\n\n",
+        "type": "String -> String -> String -> Task.Task String ()"
+      },
+      {
+        "name": "moduleDecoder",
+        "comment": " Decoder for a single module\n\nUse with Json.Decode.list since Elm's output for documentation JSON is a list of Modules.\n\n",
+        "type": "Json.Decode.Decoder Docs.Generator.Module"
+      }
+    ],
+    "generated-with-elm-version": "0.18.0"
+  }
+]
