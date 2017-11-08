@@ -16,6 +16,6 @@
   "author": "",
   "license": "Unlicense",
   "dependencies": {
-    "@elm-node/core": "git+https://github.com/elm-node/core.git#semver:^2.2.1"
+    "@elm-node/core": "git+https://github.com/elm-node/core.git#semver:^2.2.2"
   }
 }
