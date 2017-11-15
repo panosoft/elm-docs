@@ -28,9 +28,9 @@ import Regex
 import Result.Extra as Result
 import Task exposing (Task)
 import Utils.Ops exposing (..)
-import Utils.Dict exposing (..)
 import Utils.Regex exposing (..)
 import Utils.Match exposing (..)
+import Utils.Dict exposing (..)
 
 
 bold : String -> String
@@ -128,7 +128,7 @@ moduleToMarkdown module_ =
 
 
 type alias LinkDict =
-    Dict String String
+    Dict String ( String, Int )
 
 
 makeUnique : LinkDict -> Int -> String -> String
@@ -162,9 +162,11 @@ makeLink ( link, name ) =
     "- [" ++ name ++ "]" ++ "(#" ++ link ++ ")"
 
 
-makeTableOfContents : LinkDict -> List String -> String
-makeTableOfContents dict names =
+makeTableOfContents : LinkDict -> Int -> List String -> String
+makeTableOfContents dict index names =
     (dict
+        |> Dict.filter (\_ ( _, index2 ) -> index2 == index)
+        |> Dict.map (\key ( name, _ ) -> name)
         |> swap
     )
         |??->
@@ -197,51 +199,50 @@ processComments { comment, aliases, unions, values } =
                         ( \_ -> Debug.crash "BUG: bad regex"
                         , flip (|?->)
                             ( dict
-                            , \match ->
-                                match
+                            , \matchStr ->
+                                matchStr
                                     |> Regex.replace Regex.All (Regex.regex "\\@docs\\s*") (always "")
                                     |> Regex.split Regex.All (Regex.regex "\\s*,\\s*")
                                     |> List.unique
-                                    |> List.foldl (\name dict -> Dict.insert (makeLinkName dict name) name dict) dict
+                                    |> List.foldl (\name dict -> Dict.insert (makeLinkName dict name) ( name, match.index ) dict) dict
                             )
                         )
             )
             Dict.empty
         |> (\pageDict ->
-                Regex.replace
-                    Regex.All
-                    docsRegex
-                    (.match
-                        >> Regex.replace Regex.All (Regex.regex "\\@docs\\s*") (always "")
-                        >> Regex.split Regex.All (Regex.regex "\\s*,\\s*")
-                        >> List.unique
-                        >> (\names ->
-                                names
-                                    |> makeTableOfContents pageDict
-                                    |> (\tableOfContents ->
-                                            -- take each name
-                                            -- find which type name is
-                                            tableOfContents
-                                                ++ (List.map
-                                                        (\name ->
-                                                            name
-                                                                |> replaceFirst "^\\(" ""
-                                                                |> replaceFirst "\\)$" ""
-                                                                |> (\name ->
-                                                                        Maybe.values
-                                                                            [ List.find (.name >> (==) name) aliases |> Maybe.map aliasToMarkdown
-                                                                            , List.find (.name >> (==) name) unions |> Maybe.map unionToMarkdown
-                                                                            , List.find (.name >> (==) name) values |> Maybe.map valueToMarkdown
-                                                                            ]
-                                                                            |> List.head
-                                                                            |> Maybe.withDefault (name ++ " : Not Found!!!")
-                                                                   )
-                                                        )
-                                                        names
-                                                        |> String.join "\n\n---\n\n"
-                                                   )
-                                       )
-                           )
+                (Regex.replace Regex.All docsRegex)
+                    (\match ->
+                        match.match
+                            |> Regex.replace Regex.All (Regex.regex "\\@docs\\s*") (always "")
+                            |> Regex.split Regex.All (Regex.regex "\\s*,\\s*")
+                            |> List.unique
+                            |> (\names ->
+                                    names
+                                        |> makeTableOfContents pageDict match.index
+                                        |> (\tableOfContents ->
+                                                -- take each name
+                                                -- find which type name is
+                                                tableOfContents
+                                                    ++ (List.map
+                                                            (\name ->
+                                                                name
+                                                                    |> replaceFirst "^\\(" ""
+                                                                    |> replaceFirst "\\)$" ""
+                                                                    |> (\name ->
+                                                                            Maybe.values
+                                                                                [ List.find (.name >> (==) name) aliases |> Maybe.map aliasToMarkdown
+                                                                                , List.find (.name >> (==) name) unions |> Maybe.map unionToMarkdown
+                                                                                , List.find (.name >> (==) name) values |> Maybe.map valueToMarkdown
+                                                                                ]
+                                                                                |> List.head
+                                                                                |> Maybe.withDefault (name ++ " : Not Found!!!")
+                                                                       )
+                                                            )
+                                                            names
+                                                            |> String.join "\n\n---\n\n"
+                                                       )
+                                           )
+                               )
                     )
                     (String.trim comment)
            )

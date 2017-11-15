@@ -13,6 +13,7 @@ module Package.ModuleA exposing (..)
 
 # Api
 
+@docs value , function, value
 @docs value , function
 
 -}
