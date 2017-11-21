@@ -24,6 +24,7 @@ import StringUtils exposing (..)
 import Node.Encoding as Encoding
 import Node.Error as Error
 import Node.FileSystem as FileSystem
+import Node.Path as NodePath
 import Regex
 import Result.Extra as Result
 import Task exposing (Task)
@@ -31,6 +32,7 @@ import Utils.Ops exposing (..)
 import Utils.Regex exposing (..)
 import Utils.Match exposing (..)
 import Utils.Dict exposing (..)
+import Docs.SignatureExtractor exposing (..)
 
 
 bold : String -> String
@@ -88,26 +90,43 @@ removeRedundantTypes code =
 -}
 generate : String -> String -> String -> Task String ()
 generate pathSep source destination =
-    (FileSystem.readFileAsString source Encoding.Utf8 |> Task.mapError Error.message)
+    getSourceCodeFilenames (NodePath.dirname source)
         |> Task.andThen
-            (\content ->
-                Decode.decodeString (Decode.list moduleDecoder) content
-                    |> Result.map (List.map moduleToMarkdown)
-                    |> Result.unpack Task.fail Task.succeed
-            )
-        |> Task.andThen
-            (\files ->
-                List.map
-                    (\file ->
-                        FileSystem.writeFileFromString
-                            (destination ++ pathSep ++ (Tuple.first file) ++ ".md")
-                            FileSystem.defaultMode
-                            FileSystem.defaultEncoding
-                            (Tuple.second file)
-                            |> Task.mapError (\_ -> "File write error")
-                    )
-                    files
-                    |> Task.sequence
+            (\sourcePaths ->
+                (FileSystem.readFileAsString source Encoding.Utf8 |> Task.mapError Error.message)
+                    |> Task.andThen
+                        (\content ->
+                            Decode.decodeString (Decode.list moduleDecoder) content
+                                -- |> Result.map (List.map moduleToMarkdown)
+                                |> Result.map
+                                    (\modules ->
+                                        modules
+                                            |> List.map
+                                                (\module_ ->
+                                                    getModuleSignatures sourcePaths module_.name
+                                                        |> Task.andThen
+                                                            (\moduleSignatures ->
+                                                                moduleToMarkdown moduleSignatures module_
+                                                                    |> Task.succeed
+                                                            )
+                                                )
+                                    )
+                                |> Result.unpack Task.fail Task.sequence
+                        )
+                    |> Task.andThen
+                        (\files ->
+                            files
+                                |> List.map
+                                    (\file ->
+                                        FileSystem.writeFileFromString
+                                            (destination ++ pathSep ++ (Tuple.first file) ++ ".md")
+                                            FileSystem.defaultMode
+                                            FileSystem.defaultEncoding
+                                            (Tuple.second file)
+                                            |> Task.mapError (\_ -> "File write error")
+                                    )
+                                |> Task.sequence
+                        )
                     |> Task.andThen (\_ -> Task.succeed ())
             )
 
@@ -118,11 +137,11 @@ generate pathSep source destination =
 -- comment needs each @docs line replaced
 
 
-moduleToMarkdown : Module -> ( String, String )
-moduleToMarkdown module_ =
+moduleToMarkdown : Dict ModuleName (Dict Name Signature) -> Module -> ( String, String )
+moduleToMarkdown signatures module_ =
     ( module_.name
     , ("# " ++ module_.name ++ "\n\n")
-        ++ (processComments module_)
+        ++ (processComments (Dict.get module_.name signatures ?= Dict.empty) module_)
         ++ "\n\n"
     )
 
@@ -185,8 +204,8 @@ docsRegex =
     Regex.regex "\\@docs (.*)?,?"
 
 
-processComments : Module -> String
-processComments { comment, aliases, unions, values } =
+processComments : Dict Name Signature -> Module -> String
+processComments signatures { comment, aliases, unions, values } =
     comment
         |> String.trim
         |> Regex.find Regex.All docsRegex
@@ -230,9 +249,9 @@ processComments { comment, aliases, unions, values } =
                                                                     |> replaceFirst "\\)$" ""
                                                                     |> (\name ->
                                                                             Maybe.values
-                                                                                [ List.find (.name >> (==) name) aliases |> Maybe.map aliasToMarkdown
-                                                                                , List.find (.name >> (==) name) unions |> Maybe.map unionToMarkdown
-                                                                                , List.find (.name >> (==) name) values |> Maybe.map valueToMarkdown
+                                                                                [ List.find (.name >> (==) name) aliases |> Maybe.map (aliasToMarkdown signatures)
+                                                                                , List.find (.name >> (==) name) unions |> Maybe.map (unionToMarkdown signatures)
+                                                                                , List.find (.name >> (==) name) values |> Maybe.map (valueToMarkdown signatures)
                                                                                 ]
                                                                                 |> List.head
                                                                                 |> Maybe.withDefault (name ++ " : Not Found!!!")
@@ -271,20 +290,20 @@ aliasDecoder =
         |> Decode.andMap (Decode.field "type" Decode.string)
 
 
-aliasSignature : Alias -> String
-aliasSignature alias_ =
+aliasSignature : Dict Name Signature -> Alias -> String
+aliasSignature signatures alias_ =
     (("type alias " ++ alias_.name)
         |> (definitionHeader << bold)
     )
-        ++ (("type alias " ++ alias_.name ++ " " ++ (String.join " " alias_.args) ++ " =" ++ newLine)
-                ++ (tab ++ alias_.type_)
+        ++ (("type alias " ++ alias_.name ++ " " ++ (String.join " " alias_.args) ++ " =")
+                ++ (Dict.get alias_.name signatures ?= (newLine ++ tab ++ alias_.type_))
                 |> elmCode
            )
 
 
-aliasToMarkdown : Alias -> String
-aliasToMarkdown alias_ =
-    aliasSignature alias_ ++ "\n\n" ++ (String.trim alias_.comment)
+aliasToMarkdown : Dict Name Signature -> Alias -> String
+aliasToMarkdown signatures alias_ =
+    aliasSignature signatures alias_ ++ "\n\n" ++ (String.trim alias_.comment)
 
 
 
@@ -328,24 +347,26 @@ caseToMarkdown tag =
     (Tuple.first tag) ++ " " ++ (String.join " " <| Tuple.second tag)
 
 
-unionSignature : Union -> String
-unionSignature union =
+unionSignature : Dict Name Signature -> Union -> String
+unionSignature signatures union =
     (("type " ++ union.name)
         |> (definitionHeader << bold)
     )
         ++ (("type " ++ union.name ++ " " ++ (String.join " " union.args) ++ newLine)
-                ++ tab
-                ++ "= "
-                ++ (List.map caseToMarkdown union.tags
-                        |> String.join (newLine ++ tab ++ "| ")
+                ++ Dict.get union.name signatures
+                ?= (tab
+                        ++ "= "
+                        ++ (List.map caseToMarkdown union.tags
+                                |> String.join (newLine ++ tab ++ "| ")
+                           )
                    )
                 |> elmCode
            )
 
 
-unionToMarkdown : Union -> String
-unionToMarkdown union =
-    unionSignature union
+unionToMarkdown : Dict Name Signature -> Union -> String
+unionToMarkdown signatures union =
+    unionSignature signatures union
         ++ "\n\n"
         ++ (String.trim union.comment)
 
@@ -371,19 +392,19 @@ valueDecoder =
         |> Decode.andMap (Decode.field "type" Decode.string)
 
 
-valueSignature : Value -> String
-valueSignature value =
+valueSignature : Dict Name Signature -> Value -> String
+valueSignature signatures value =
     (operatorize value.name
         |> (definitionHeader << bold)
     )
-        ++ ((operatorize value.name ++ " : " ++ value.type_)
+        ++ ((operatorize value.name ++ " : " ++ (Dict.get value.name signatures ?= value.type_))
                 |> elmCode
            )
 
 
-valueToMarkdown : Value -> String
-valueToMarkdown value =
-    valueSignature value
+valueToMarkdown : Dict Name Signature -> Value -> String
+valueToMarkdown signatures value =
+    valueSignature signatures value
         ++ "\n\n"
         ++ (String.trim value.comment)
 

@@ -1,7 +1,7 @@
 module Main exposing (..)
 
-import Docs.Generator as Docs
 import Task exposing (Task)
+import Docs.Generator as Docs
 
 
 main : Program Never {} Msg
@@ -19,9 +19,10 @@ type Msg
 
 init : ( {}, Cmd Msg )
 init =
-    ( {}
-    , Docs.generate "/" "./test/package/documentation.json" "./test/docs"
-        |> Task.attempt Done
+    ({}
+        ! [ Docs.generate "/" "./test/package/documentation.json" "./test/docs"
+                |> Task.attempt Done
+          ]
     )
 
 
