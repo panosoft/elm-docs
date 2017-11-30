@@ -3,7 +3,7 @@ module Package.ModuleA exposing (..)
 {-| Module comments.
 
   - [Types](#types)
-  - [Api](#api)
+      - [Api](#api)
 
 
 # Types

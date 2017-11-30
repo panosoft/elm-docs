@@ -448,7 +448,8 @@ type alias EditCodeBlockState =
 fixCodeBlocks : String -> String
 fixCodeBlocks comment =
     ( String.length >> (==) 0
-    , String.startsWith "    "
+      -- , String.startsWith "    "
+    , Regex.contains (Regex.regex "^    [^ ]")
     , (==) "†"
     , \state -> { state | comment = List.append (List.repeat state.trailingBlankLineCount "") state.comment, trailingBlankLineCount = 0 }
     , \state -> { state | inBlock = False, comment = "```\n" :: state.comment }
